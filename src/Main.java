@@ -1,6 +1,8 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
 import java.util.stream.Collectors;
-import java.util.regex.*;
 
 public class Main {
     private static List<Employee> employeeList = new ArrayList<>();
@@ -26,43 +28,19 @@ public class Main {
 
             try {
                 operation = Integer.parseInt(scn.nextLine());
-                flag= false;
+                flag = false;
                 switch (operation) {
                     case 1:
-                        try{
-                            add();
-                        }catch (IllegalArgumentException exp){
-                            System.out.println("Please enter valid input");
-                            flag = false;
-                            try {
-                                add ();
-                            }catch (IllegalArgumentException e){}
-                        }
+                        add();
                         break;
                     case 2:
                         getAll();
                         break;
                     case 3:
-                        try{
-                            delete();
-                        }catch (IllegalArgumentException exp){
-                            System.out.println("Please enter valid input");
-                            flag = false;
-                            try {
-                                delete();
-                            }catch (IllegalArgumentException e){}
-                        }
+                        delete();
                         break;
                     case 4:
-                        try{
-                            edit();
-                        }catch (IllegalArgumentException exp){
-                            System.out.println("Please enter valid input");
-                            flag = false;
-                            try {
-                                edit();
-                            }catch (IllegalArgumentException e){}
-                        }
+                        edit();
                         break;
                     case 5:
                         System.exit(0);
@@ -80,18 +58,21 @@ public class Main {
 
 
     private static void delete() {
-        System.out.println("-------------------------");
-        System.out.print("Enter empcode to delete details : ");
-        Long empCode = Long.parseLong(scn.nextLine());
-        if (valid(empCode)) {
-            employeeList = employeeList.stream().filter(employee -> employee.getEmpId() != empCode).collect(Collectors.toList());
+        try {
             System.out.println("-------------------------");
-            System.out.println("Employee deleted");
-            System.out.println("-------------------------");
-            System.out.println("Updated employee list");
-            display();
-        } else {
-            System.out.println("Please enter valid empCode...");
+            System.out.print("Enter empcode to delete details : ");
+            Long empCode = Long.parseLong(scn.nextLine());
+            if (valid(empCode)) {
+                employeeList = employeeList.stream().filter(employee -> employee.getEmpId() != empCode).collect(Collectors.toList());
+                System.out.println("-------------------------");
+                System.out.println("Employee deleted");
+                System.out.println("-------------------------");
+                System.out.println("Updated employee list");
+                display();
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Please enter valid input");
+            delete();
         }
     }
 
@@ -110,41 +91,85 @@ public class Main {
     }
 
     private static void edit() {
-        System.out.println("-------------------------");
-        System.out.print("Enter empcode to edit details : ");
-        Long empCode = Long.parseLong(scn.nextLine());
-        if (valid(empCode)) {
-            System.out.print("Enter update full-name : ");
-            String updatedFullName = scn.nextLine();
-            System.out.print("Enter update tech stack : ");
-            String updatedTechStack = scn.nextLine();
+        while (true) {
+            try {
+                System.out.println("-------------------------");
+                System.out.print("Enter empcode to edit details : ");
+                Long empCode = Long.parseLong(scn.nextLine());
+                if (valid(empCode)) {
+                    System.out.print("Enter update full-name : ");
+                    String updatedFullName = scn.nextLine();
+                    if ((updatedFullName != null) && (!updatedFullName.equals(""))
+                            && (updatedFullName.matches("^[a-zA-Z \\-\\.\\']*$"))) {
+                        System.out.print("Enter update tech stack : ");
+                        String updatedTechStack = scn.nextLine();
+                        if (((updatedTechStack != null) && (!updatedTechStack.equals(""))
+                                && (updatedTechStack.matches("^[a-zA-Z \\-\\.\\']*$")))) {
 
-            Employee oldEmployee = employeeList.stream().filter(employee -> employee.getEmpId() == empCode).findFirst().get();
-            oldEmployee.setEmpId(empCode);
-            oldEmployee.setTech(updatedTechStack);
-            oldEmployee.setFullName(updatedFullName);
-            System.out.println("-------------------------");
-            System.out.println("Employee updated successfully");
-            System.out.println("Updated employee list");
-            display();
-        } else {
-            System.out.println("Please enter valid empCode...");
+                            Employee oldEmployee = employeeList.stream().filter(employee -> employee.getEmpId() == empCode).findFirst().get();
+                            oldEmployee.setEmpId(empCode);
+                            oldEmployee.setTech(updatedTechStack);
+                            oldEmployee.setFullName(updatedFullName);
+                            System.out.println("-------------------------");
+                            System.out.println("Employee updated successfully");
+                            System.out.println("Updated employee list");
+                            display();
+                        } else {
+                            System.out.println("Enter valid tech");
+                            continue;
+                        }
+                    } else {
+                        System.out.println("Please enter valid full name!");
+                        continue;
+                    }
+                }
+
+                break;
+
+            } catch (IllegalArgumentException e) {
+                System.out.println("Please enter valid input");
+                edit();
+            }
         }
+
+
     }
 
     public static void add() {
-        System.out.println("-------------------------");
-        System.out.print("Enter Employee's code : ");
-        Long empCode = Long.parseLong(scn.nextLine());
+        while (true) {
+            try {
+                System.out.println("-------------------------");
+                System.out.print("Enter Employee's code : ");
+                Long empCode = Long.parseLong(scn.nextLine());
 //        scn.nextLine();
-        System.out.print("Enter full-name : ");
-        String fullName = scn.nextLine();
-        System.out.print("Enter tech stack : ");
-        String techStack = scn.nextLine();
-        employeeList.add(new Employee(empCode, fullName, techStack));
-        System.out.println("-------------------------");
-        System.out.println("Employee details added :");
-        display();
+                System.out.print("Enter full-name : ");
+                String fullName = scn.nextLine();
+                if ((fullName != null) && (!fullName.equals(""))
+                        && (fullName.matches("^[a-zA-Z \\-\\.\\']*$"))) {
+                    System.out.print("Enter tech stack : ");
+                    String techStack = scn.nextLine();
+                    if (((techStack != null) && (!techStack.equals(""))
+                            && (techStack.matches("^[a-zA-Z\\\\s]*$")))) {
+                        employeeList.add(new Employee(empCode, fullName, techStack));
+                        System.out.println("-------------------------");
+                        System.out.println("Employee details added :");
+                        display();
+                        break;
+                    } else {
+                        System.out.println("Enter valid tech");
+                        continue;
+                    }
+                } else {
+                    System.out.println("Please enter valid full name!");
+                    continue;
+                }
+
+            } catch (IllegalArgumentException e) {
+                System.out.println("Please enter valid input");
+                add();
+            }
+        }
+
     }
 
     public static void display() {
