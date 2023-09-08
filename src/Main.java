@@ -56,22 +56,18 @@ public class Main {
 
     }
 
-
     private static void delete() {
-        try {
+        System.out.println("-------------------------");
+        Long empCode = getEmpCode();
+        if (valid(empCode)) {
+            employeeList = employeeList.stream().filter(employee -> employee.getEmpId() != empCode).collect(Collectors.toList());
             System.out.println("-------------------------");
-            System.out.print("Enter empcode to delete details : ");
-            Long empCode = Long.parseLong(scn.nextLine());
-            if (valid(empCode)) {
-                employeeList = employeeList.stream().filter(employee -> employee.getEmpId() != empCode).collect(Collectors.toList());
-                System.out.println("-------------------------");
-                System.out.println("Employee deleted");
-                System.out.println("-------------------------");
-                System.out.println("Updated employee list");
-                display();
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println("Please enter valid input");
+            System.out.println("Employee deleted");
+            System.out.println("-------------------------");
+            System.out.println("Updated employee list");
+            display();
+        }else{
+            System.out.println("Please Enter valid Emp Code");
             delete();
         }
     }
@@ -91,85 +87,106 @@ public class Main {
     }
 
     private static void edit() {
-        while (true) {
-            try {
-                System.out.println("-------------------------");
-                System.out.print("Enter empcode to edit details : ");
-                Long empCode = Long.parseLong(scn.nextLine());
-                if (valid(empCode)) {
-                    System.out.print("Enter update full-name : ");
-                    String updatedFullName = scn.nextLine();
-                    if ((updatedFullName != null) && (!updatedFullName.equals(""))
-                            && (updatedFullName.matches("^[a-zA-Z \\-\\.\\']*$"))) {
-                        System.out.print("Enter update tech stack : ");
-                        String updatedTechStack = scn.nextLine();
-                        if (((updatedTechStack != null) && (!updatedTechStack.equals(""))
-                                && (updatedTechStack.matches("^[a-zA-Z \\-\\.\\']*$")))) {
-
-                            Employee oldEmployee = employeeList.stream().filter(employee -> employee.getEmpId() == empCode).findFirst().get();
-                            oldEmployee.setEmpId(empCode);
-                            oldEmployee.setTech(updatedTechStack);
-                            oldEmployee.setFullName(updatedFullName);
-                            System.out.println("-------------------------");
-                            System.out.println("Employee updated successfully");
-                            System.out.println("Updated employee list");
-                            display();
-                        } else {
-                            System.out.println("Enter valid tech");
-                            continue;
-                        }
-                    } else {
-                        System.out.println("Please enter valid full name!");
-                        continue;
-                    }
+        System.out.println("-------------------------");
+        Long empCode = getEmpCode();
+        if (valid(empCode)) {
+            String updatedFullName = getFullName();
+            if (updatedFullName != null) {
+                String updatedTechStack = getTechStack();
+                if (updatedTechStack != null) {
+                    Employee oldEmployee = employeeList.stream().filter(employee -> employee.getEmpId() == empCode).findFirst().get();
+                    oldEmployee.setEmpId(empCode);
+                    oldEmployee.setTech(updatedTechStack);
+                    oldEmployee.setFullName(updatedFullName);
+                    System.out.println("-------------------------");
+                    System.out.println("Employee updated successfully");
+                    System.out.println("Updated employee list");
+                    display();
+                } else {
+                    System.out.println("Enter valid tech");
                 }
-
-                break;
-
-            } catch (IllegalArgumentException e) {
-                System.out.println("Please enter valid input");
-                edit();
+            } else {
+                System.out.println("Please enter valid full name!");
             }
         }
-
-
     }
 
     public static void add() {
-        while (true) {
-            try {
-                System.out.println("-------------------------");
-                System.out.print("Enter Employee's code : ");
-                Long empCode = Long.parseLong(scn.nextLine());
-//        scn.nextLine();
-                System.out.print("Enter full-name : ");
-                String fullName = scn.nextLine();
-                if ((fullName != null) && (!fullName.equals(""))
-                        && (fullName.matches("^[a-zA-Z \\-\\.\\']*$"))) {
-                    System.out.print("Enter tech stack : ");
-                    String techStack = scn.nextLine();
-                    if (((techStack != null) && (!techStack.equals(""))
-                            && (techStack.matches("^[a-zA-Z\\\\s]*$")))) {
-                        employeeList.add(new Employee(empCode, fullName, techStack));
-                        System.out.println("-------------------------");
-                        System.out.println("Employee details added :");
-                        display();
-                        break;
-                    } else {
-                        System.out.println("Enter valid tech");
-                        continue;
-                    }
+        System.out.println("-------------------------");
+        Long empCode = getEmpCode();
+        Optional<Employee> existedEmployee = employeeList.stream().filter(employee -> employee.getEmpId() == empCode).findFirst();
+        if ((empCode != -1) && (!existedEmployee.isPresent())) {
+            String fullName = getFullName();
+            if (fullName != null) {
+                String techStack = getTechStack();
+                if (techStack != null) {
+                    employeeList.add(new Employee(empCode, fullName, techStack));
+                    System.out.println("-------------------------");
+                    System.out.println("Employee details added :");
+                    display();
                 } else {
-                    System.out.println("Please enter valid full name!");
-                    continue;
+                    System.out.println("Enter valid tech");
                 }
-
-            } catch (IllegalArgumentException e) {
-                System.out.println("Please enter valid input");
-                add();
+            } else {
+                System.out.println("Please enter valid full name!");
             }
+        } else {
+            System.out.println("User already exists");
+            add();
+        }
+    }
+
+    public static Long getEmpCode() {
+        try {
+            System.out.print("Enter Employee's code : ");
+            Long empCode = Long.parseLong(scn.nextLine());
+
+//            Optional<Employee> existingUser = employeeList.stream().filter(employee -> employee.getEmpId() == empCode).findFirst();
+            if (String.valueOf(empCode).matches("^(?=[\\S\\s]{1,10}$)[\\S\\s]*")) {
+                return empCode;
+            } /*else {
+                System.out.println("User is already exists in Database.. Please try to give unique employee code.");
+                return getEmpCode();
+            }*/
+        } catch (IllegalArgumentException e) {
+            System.out.println("Please enter valid input");
+            return getEmpCode();
         }
 
+        return Long.valueOf(-1);
+    }
+
+    public static String getFullName() {
+        try {
+            System.out.print("Enter full-name : ");
+            String fullName = scn.nextLine();
+            if ((fullName != null) && (!fullName.equals(""))
+                    && (fullName.matches("^[a-zA-Z \\-\\.\\']*$"))) {
+                return fullName;
+            } else {
+                return getFullName();
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Please enter valid input");
+        }
+        return null;
+    }
+
+    public static String getTechStack() {
+        try {
+            System.out.print("Enter tech stack : ");
+            String techStack = scn.nextLine();
+            if (((techStack != null) && (!techStack.equals(""))
+                    && (techStack.matches("^[a-zA-Z \\-\\.\\']*$")))) {
+                return techStack;
+            } else {
+                return getTechStack();
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Please enter valid input");
+        }
+
+        return null;
     }
 
     public static void display() {
