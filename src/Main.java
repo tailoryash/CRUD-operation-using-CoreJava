@@ -24,12 +24,12 @@ public class Main {
             System.out.println("5. Exit");
 
             System.out.print("Enter option : ");
-            int operation;
+            double operation;
 
             try {
-                operation = Integer.parseInt(scn.nextLine());
+                operation = Double.parseDouble(scn.nextLine());
                 flag = false;
-                switch (operation) {
+                switch ((int) operation) {
                     case 1:
                         add();
                         break;
@@ -66,18 +66,10 @@ public class Main {
             System.out.println("-------------------------");
             System.out.println("Updated employee list");
             display();
-        }else{
-            System.out.println("Please Enter valid Emp Code");
+        } else {
+            System.out.println("Doesn't exists employee, Please add first employee details ! ");
             delete();
         }
-    }
-
-    public static boolean valid(Long empCode) {
-        Optional<Employee> employee = employeeList.stream().filter(emp -> emp.getEmpId() == empCode).findFirst();
-        if (employee.isPresent()) {
-            return true;
-        }
-        return false;
     }
 
     private static void getAll() {
@@ -108,14 +100,17 @@ public class Main {
             } else {
                 System.out.println("Please enter valid full name!");
             }
+        }else{
+            System.out.println("Employee doesn't exists in Database, Please add details first");
+            edit();
         }
     }
 
     public static void add() {
         System.out.println("-------------------------");
         Long empCode = getEmpCode();
-        Optional<Employee> existedEmployee = employeeList.stream().filter(employee -> employee.getEmpId() == empCode).findFirst();
-        if ((empCode != -1) && (!existedEmployee.isPresent())) {
+//        Employee optionalEmployee = employeeList.stream().filter(emp -> emp.getEmpId() == empCode).findFirst().get();
+        if ((empCode != -1) && (!valid(empCode))) {
             String fullName = getFullName();
             if (fullName != null) {
                 String techStack = getTechStack();
@@ -131,7 +126,7 @@ public class Main {
                 System.out.println("Please enter valid full name!");
             }
         } else {
-            System.out.println("User already exists");
+            System.out.println("User already exists, Please enter unique code.");
             add();
         }
     }
@@ -140,19 +135,13 @@ public class Main {
         try {
             System.out.print("Enter Employee's code : ");
             Long empCode = Long.parseLong(scn.nextLine());
-
-//            Optional<Employee> existingUser = employeeList.stream().filter(employee -> employee.getEmpId() == empCode).findFirst();
             if (String.valueOf(empCode).matches("^(?=[\\S\\s]{1,10}$)[\\S\\s]*")) {
                 return empCode;
-            } /*else {
-                System.out.println("User is already exists in Database.. Please try to give unique employee code.");
-                return getEmpCode();
-            }*/
+            }
         } catch (IllegalArgumentException e) {
-            System.out.println("Please enter valid input");
+            System.out.println("------ Please enter valid code --------");
             return getEmpCode();
         }
-
         return Long.valueOf(-1);
     }
 
@@ -161,9 +150,10 @@ public class Main {
             System.out.print("Enter full-name : ");
             String fullName = scn.nextLine();
             if ((fullName != null) && (!fullName.equals(""))
-                    && (fullName.matches("^[a-zA-Z \\-\\.\\']*$"))) {
+                    && (fullName.matches("^[a-zA-Z \\-\\.\\']*$")) && (fullName.length() < 40)) {
                 return fullName;
             } else {
+                System.out.println("------- Please enter valid name or length is too big ! ---------");
                 return getFullName();
             }
         } catch (IllegalArgumentException e) {
@@ -180,12 +170,12 @@ public class Main {
                     && (techStack.matches("^[a-zA-Z \\-\\.\\']*$")))) {
                 return techStack;
             } else {
+                System.out.println("----------- Please enter valid tech ---------");
                 return getTechStack();
             }
         } catch (IllegalArgumentException e) {
             System.out.println("Please enter valid input");
         }
-
         return null;
     }
 
@@ -201,5 +191,13 @@ public class Main {
             System.out.println();
         }
         System.out.println("------------------------------------------------");
+    }
+
+    public static boolean valid(Long empCode) {
+        Optional<Employee> employee = employeeList.stream().filter(emp -> emp.getEmpId() == empCode).findAny();
+        if (employee.isPresent()) {
+            return true;
+        }
+        return false;
     }
 }
