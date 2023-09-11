@@ -194,7 +194,7 @@ public class Main {
     }
 
     public static boolean valid(Long empCode) {
-        Optional<Employee> employee = employeeList.stream().filter(emp -> emp.getEmpId() == empCode).findAny();
+        Optional<Employee> employee = employeeList.stream().filter(emp -> String.valueOf(emp.getEmpId()).equalsIgnoreCase(String.valueOf(empCode))).findAny();
         if (employee.isPresent()) {
             return true;
         }
